@@ -12,6 +12,7 @@ source("./Modules/Datcalc.R")
 source("./Modules/Plotone.R")
 source("./Modules/Plotsall.R")
 source("./Modules/ResTab.R")
+source("./Modules/Makeplot.R")
 
 ThisVersion<-"version 0.3.2"
 ThisApp <- "Simple clotlysis app"
