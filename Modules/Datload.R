@@ -34,11 +34,11 @@ csvFileServer <- function(id, stringsAsFactors) {
           else{
             ext <- tools::file_ext(userFile()$datapath)
             switch(ext,
-                   "xlsx"= readxl::read_excel(userFile()$datapath, 1), #it would be good to allow use of alternative sheets
-                   #csv = vroom::vroom(userFile()$datapath, delim = ",", show_col_types = FALSE), 
-                   csv=data.table::fread(userFile()$datapath),#vroom can be used but fread is faster
-                   tsv = vroom::vroom(userFile()$datapath, delim = "\t"),
-                   txt = vroom::vroom(userFile()$datapath, show_col_types = FALSE),
+                   "xlsx" = readxl::read_excel(userFile()$datapath, sheet = input$sheet, .name_repair = "universal"),
+                   csv = vroom::vroom(userFile()$datapath, delim = ",", show_col_types = FALSE, .name_repair = "universal"),
+                   # csv=data.table::fread(userFile()$datapath),#can use vroom but fread may be faster for large files
+                   tsv = vroom::vroom(userFile()$datapath, delim = "\t", .name_repair = "universal"),
+                   txt = vroom::vroom(userFile()$datapath, show_col_types = FALSE, .name_repair = "universal"),
                    validate("Invalid file. Please upload a .csv or .txt file")
                   )
             }
