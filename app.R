@@ -13,11 +13,11 @@ source("./Modules/Plotone.R")
 source("./Modules/Plotsall.R")
 source("./Modules/ResTab.R")
 
-ver_str<-"version 0.3.2"
-
+ThisVersion<-"version 0.3.2"
+ThisApp <- "Simple clotlysis app"
 ui <- fluidPage(
   
-  navbarPage(title="Simple clotlysis app"),
+  navbarPage(title=ThisApp),
   thematic::thematic_shiny() ,
   theme = bs_theme(bootswatch = "lumen"),
   
@@ -31,19 +31,22 @@ ui <- fluidPage(
       
       card(
         card_header(h6("Citation for publications"), class = "bg-dark"),
-        helpText(h6(tags$i("Longstaff C, Development of a Shiny app tool to simplify and standardize the analysis 
+        helpText(h6(
+          tags$i("Longstaff C, Development of a Shiny app tool to simplify and standardize the analysis
               of hemostasis assay data: communication from the SSC of the ISTH, J Thromb Haemost, 15: 1044-6, 2017"),
-                    tags$a(href="https://onlinelibrary.wiley.com/doi/10.1111/jth.13656", "DOI 10.1111/jth.13656"))),
-        
+          tags$a(href = "https://onlinelibrary.wiley.com/doi/10.1111/jth.13656", "DOI 10.1111/jth.13656")
+        )),
         card_header(h6("Contact details"), class = "bg-light"),
-        #tags$a(href="mailto: drclongstaff@gmail.com", "drclongstaff@gmail.com"))),
+        # tags$a(href="mailto: drclongstaff@gmail.com", "drclongstaff@gmail.com"))),
         
-        tags$a(href="mailto: drclongstaff@gmail.com", "drclongstaff@gmail.com"),
-        helpText(h6("Simple clot lysis analysis app", ver_str,
-                    " last accessed", Sys.Date()),
-        ),
-        card_header(class = "bg-light",
-                    tags$a(href="https://drclongstaff.github.io/shiny-clots/", "Links to other apps"))
+        tags$a(href = "mailto: drclongstaff@gmail.com", "drclongstaff@gmail.com"),
+        helpText(h6(ThisApp, ThisVersion, " last accessed", Sys.Date()), ),
+        card_header(
+          class = "bg-light",
+          tags$a(href = "https://drclongstaff.github.io/shiny-clots/", "Links to other apps and help notes"),
+          tags$br(),
+          tags$a(href = "https://www.youtube.com/@colinlongstaff7270", "Youtube channel of help videos")
+        )
       ),
     ),
     
