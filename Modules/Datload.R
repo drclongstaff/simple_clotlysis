@@ -2,14 +2,17 @@
 
 # Module UI function
 csvFileUI <- function(id, label = "CSV file") {
- 
-      ns <- NS(id)
+  ns <- NS(id)
   
-      tagList(
-          fileInput(ns("file"), label)
-    
-            )
-      }
+  tagList(
+    fluidRow(
+      column(7, fileInput(ns("file"), label)),
+      column(5, numericInput(ns("sheet"),
+                             label = h6("Excel sheet"), step = 1, value = 1
+      ))
+    )
+  )
+}
 
 csvFileServer <- function(id, stringsAsFactors) {
       moduleServer(
