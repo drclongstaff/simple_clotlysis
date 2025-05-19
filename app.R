@@ -13,7 +13,7 @@ source("./Modules/Plotone.R")
 source("./Modules/Plotsall.R")
 source("./Modules/ResTab.R")
 
-ver_str<-"version 0.3.1"
+ver_str<-"version 0.3.2"
 
 ui <- fluidPage(
   
