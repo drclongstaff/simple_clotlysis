@@ -167,7 +167,7 @@ TabRes_server <- function(id, procfile) {
         select(Wells, min.abs, clot.time, clot.abs, max.abs, delta.abs, max.time, lys.time, lys.abs, clotTolys.time, end.time, startPoint, pointmax, decayPoint, endPoint) %>%
         mutate(across(where(is.numeric), \(x) round(x, digits = 4))) # use newer method for across
       # No clipboard for online app
-      clipr::write_clip(TabRes)
+      #clipr::write_clip(TabRes)
     })
   })
 }
