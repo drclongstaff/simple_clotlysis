@@ -12,7 +12,7 @@ multi_plotFun <- function(PLATE, ROWNUM, TABRES) {
   lapply(seq_along(plateData), function(k) {
     # for(k in seq_along(plateData)){ #This is an alternative loop
 
-    plotmake_fun(PLATE, Time, TabRes, mint, maxt, maxy, samples, k)
+    plotmake_fun(PLATE, Time, TabRes, mint, maxt, maxy, samples, k, axx="n", axy="n")
   }) # remove this ')' with alternative loop
 }
 
