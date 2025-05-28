@@ -67,6 +67,7 @@ ui <- fluidPage(
               layout_sidebar(
                 fillable = TRUE,
                 sidebar = sidebar(
+                  open = TRUE,
                   fluidRow(
                     radioButtons("atab",
                       label = h6("Display results"),
