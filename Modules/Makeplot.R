@@ -12,7 +12,7 @@ plotmake_fun <- function(myPlate, Time, TabRes, mint, maxt, maxy, samples, k, ax
   yi <- plateData[[k]]
   plot <- plot(Time, yi,
     type = "l", col = "grey40", lwd = 2, xlim = c(0, maxt),
-    ylim = c(0, maxy * 1.2), ylab = "Absorbance"
+    ylim = c(0, maxy * 1.2), ylab = "Absorbance", xaxt=axx, yaxt=axy
   )
 
   points(Time, yi, pch = 21, col = "slategrey")
