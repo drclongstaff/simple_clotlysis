@@ -4,11 +4,11 @@ one_plotFun <- function(PLATE, WELLNUM, TABRES) {
   TabRes <- TABRES
 
   k <- WELLNUM
-
+  maxy <- max(PLATE[[k+1]]) 
   par(mar = c(4, 4, 1, 1)) # dimensions for figure
 
   # Only one plot in this case so no looping needed
-  plotmake_fun(PLATE, Time, TabRes, mint, maxt, maxy, samples, k, axx="s", axy="s")
+  plotmake_fun(PLATE, TabRes, k, axx="s", axy="s", maxy)
 }
 
 
