@@ -48,3 +48,4 @@ plot_server <- function(id, procfile, resfile) { # use df or procfile here or re
     })
   })
 }
+
