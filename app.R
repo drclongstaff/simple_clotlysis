@@ -175,7 +175,7 @@ resfile <- TabRes_server("x", reactive({
   output$whichtab <- renderTable({
     switch(input$atab,
       "selected" = myobs(),
-      "all results" = resfile()
+      "all results" = resfile()[,1:12]
     )
   })
 
