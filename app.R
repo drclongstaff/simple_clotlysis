@@ -14,7 +14,7 @@ source("./Modules/Plotsall.R")
 source("./Modules/ResTab.R")
 source("./Modules/Makeplot.R")
 
-ThisVersion <- "version 0.3.3"
+ThisVersion <- "version 0.3.4"
 ThisApp <- "Simple clotlysis app"
 ui <- fluidPage(
 

@@ -44,8 +44,15 @@ csvFileServer <- function(id, stringsAsFactors) {
           )
         }
       })
-
-      return(dataframe)
+      
+      dataframe1 <- reactive({
+        dataframe1<- dataframe() |> janitor::remove_empty( which=c("rows", "cols"), 
+                                                 cutoff=1, quiet=TRUE) |> #remove empty cols and rows
+        sapply( \(x) replace(x, x  %in% "", NA)) |> #replace empty cells with NA
+        as.data.frame()
+      })
+      
+      return(dataframe1)
     }
   )
 }
