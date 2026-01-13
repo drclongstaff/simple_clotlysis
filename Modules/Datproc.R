@@ -30,7 +30,7 @@ DatProc_ui <- function(id) {
             label = NULL, inline = TRUE,
             choices = c(
               "global zero", "nth absorbance",
-              "min + offset"
+              "min+offset"
             )
           ),
         ),
@@ -71,7 +71,7 @@ DatProc_server <- function(id, df) {
     # data4 is data with min value and optimum offset subtracted
     data4 <- reactive({
       map_df(df()[, -1], ~ BaselineOff(.x, input$off)) %>%
-        add_column("Time" = df()[[1]], .before = TRUE) #
+        add_column("Time" = df()[[1]], .before = TRUE)  #
     })
     # procdat is the processed data after baseline selection
     procdat <- reactive({
@@ -79,7 +79,7 @@ DatProc_server <- function(id, df) {
         # "global zero"=data2(),
         "global zero" = data(),
         "nth absorbance" = data3(),
-        "min + offset" = data4()
+        "min+offset" = data4()
       )
     })
   })

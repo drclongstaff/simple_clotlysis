@@ -86,7 +86,7 @@ TabRes_server <- function(id, procfile) {
              startTime<-round(approx(upAbs, upTime, xout = startAbs, ties = mean)$y,3)
       )
       
-      
+      ifelse(is.na(startTime), startTime <- 0, startTime <- startTime)
       ifelse(is.na(startTime), startPoint <- 1, startPoint <- startPoint)
       
       upcurve<-c(minAbs, startTime,startAbs, maxAbs, startPoint, pointmax)

@@ -152,18 +152,18 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
   datafile <- csvFileServer("datafile", stringsAsFactors = FALSE)
-  procfile <- DatProc_server("x", reactive({
-    datafile()
-  }))
-  plotfile <- oneplot_server("x", reactive({
-    procfile()
-  }), resfile)
-  mplotfile <- plot_server("x", reactive({
-    procfile()
-  }), resfile)
-  resfile <- TabRes_server("x", reactive({
-    procfile()
-  }))
+procfile <- DatProc_server("x", reactive({
+  datafile()
+}))
+plotfile <- oneplot_server("x", reactive({
+  procfile()
+}), resfile)
+mplotfile <- plot_server("x", reactive({
+  procfile()
+}), resfile)
+resfile <- TabRes_server("x", reactive({
+  procfile()
+}))
 
   theobs <- reactive({
     resfile() |>
