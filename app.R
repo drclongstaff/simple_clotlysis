@@ -75,7 +75,7 @@ ui <- fluidPage(
                     )
                   ),
                   fluidRow(
-                    selectInput("obs1", label = h6("Selected"), choices = c(colnames(myRes)), selected = "lys.time")
+                    selectInput("obs1", label = h6("Selected"), choices = c(colnames(myRes)), selected = "lysTime")
                   )
                 ),
                 tableOutput("obs"),

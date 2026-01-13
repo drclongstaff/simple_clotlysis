@@ -1,4 +1,4 @@
-myRes <- read.csv("Data/myRes.csv")
+myRes <- read.csv("Data/myRes2.csv")
 
 filenames_ui <- function(id) {
   ns <- NS(id)

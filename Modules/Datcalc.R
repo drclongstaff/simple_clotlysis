@@ -26,148 +26,175 @@ TabRes_ui <- function(id) {
 TabRes_server <- function(id, procfile) {
   moduleServer(id, function(input, output, session) {
     # Calculations for the min (baseline) and max
-    MaxandMin <- function(m, Time, thresh) {
-      # minA is for setting the baseline
-      minA <- switch(input$abini,
-        "global zero" = input$back,
-        # "global zero"=min(m, na.rm=TRUE)-input$back, #some options here for how best to display results
-        # "global zero"=min(m, na.rm=TRUE),
-        "nth absorbance" = m[input$arow],
-        # "nth absorbance"=min(m, na.rm=TRUE),
-        # "min + offset"=min(m, na.rm=TRUE)+input$off
-        "min + offset" = min(m, na.rm = TRUE)
-      )
-
-      firstA <- m[1]
-      pointmax <- which.max(m)
-
-      maxA <- max(m, na.rm = TRUE)
-
-      maxT <- Time[which.max(m)] # ,
-      changeA <- maxA - minA
-
-      # Here list the variables you want to collect
-      Aminmax <- c(firstA, minA, maxA, changeA, maxT, pointmax)
-    }
-
-    # A function to isolate and do calculations
-    # on the ascending part of the curve
-    uppity <- function(u, Time, ini, thresh) {
-      minA <- switch(input$abini,
-        "global zero" = input$back,
-        "nth absorbance" = min(u, na.rm = TRUE),
-        "min + offset" = min(u, na.rm = TRUE) + input$off
-        # "min + offset"=min(u, na.rm=TRUE)
-      )
-
-      # Need to define how to get the max abs
-      maxAbs <- max(u, na.rm = TRUE)
-
-      # Calculations to find the clotting time and abs
-      pointmax <- which.max(u)
-      upTime <- Time[c(1:pointmax)] # vector of time to max
-      upAbs <- u[c(1:pointmax)] # vector of absorbances to max
-      pcChange <- ini * (maxAbs - minA) + minA # this minAbs is determined in shiny, may be set or calculated
-      startPoint <- which(abs(upAbs - pcChange) == min(abs(upAbs - pcChange)))[1]
-      # StartAbs is fitted if abs > threshold, otherwise is closest point
-      # This prevents crashing if there are blank wells
-      ifelse(max(u) - min(u) < thresh,
-        startAbs <- upAbs[startPoint],
-        startAbs <- round(approx(upTime, upAbs, xout = pcChange, ties = mean)$x, 4)
-      )
-
-      # StartTime is fitted if abs > threshold, otherwise is closest point
-      # This prevents crashing if there are blank wells
-      ifelse(max(u) - min(u) < thresh,
-        startTime <- upTime[startPoint],
-        startTime <- round(approx(upAbs, upTime, xout = startAbs, ties = mean)$y, 4)
-      )
-
-      # Collect the variables
-      upcurve <- c(minA, startTime, startAbs, startAbs, startPoint, pointmax)
-    }
-
-    # Calculations on the descending part of the curve
-    downy <- function(d, Time, ini, thresh) {
+    minandmax<-function(m, aplate, ini, thresh){
+      
+      Time <- aplate[[1]]
+      #minAbs calculation is selected here so these functions aren't separated into exterior files
       minAbs <- switch(input$abini,
-        "global zero" = input$back,
-        "nth absorbance" = min(d, na.rm = TRUE),
-        "min + offset" = min(d, na.rm = TRUE) + input$off
-        # "min + offset"=min(d, na.rm=TRUE)
+                       "global zero"=input$back,
+                       "nth absorbance"=m[input$arow],
+                       "min+offset"=min(m, na.rm=TRUE)#+input$off
       )
-
-      # Need to define how to get the max abs
+      #This min abs is presented without the offset because it's not used for clot or lys calculations                
+      #It is used for plotting                     
+      
+      firstA=m[1]
+      pointmax<-which.max(m)
+      
+      maxA <- max(m, na.rm = TRUE)
+      
+      maxT <- Time[which.max(m)]#,
+      changeA=maxA-minAbs
+      
+      minmax<-c(firstA, minAbs, maxA, changeA, maxT, pointmax)
+      
+    }
+    
+    #uppity analysis the clotting part
+    uppity<-function(u, aplate, ini, thresh){
+      
+      Time <- aplate[[1]]
+      
+      minAbs <- switch(input$abini,
+                       "global zero"=input$back,
+                       "nth absorbance"=u[input$arow],
+                       "min+offset"=min(u, na.rm=TRUE)+input$off
+                       
+      )
+      
+      maxAbs <- max(u, na.rm = TRUE)
+      
+      pointmax<-which.max(u)
+      upTime<-Time[c(1:pointmax)] #vector of time to max
+      upAbs<-u[c(1:pointmax)]  #vector of absorbances to max
+      pcChange<-ini*(maxAbs-minAbs)+minAbs#this minAbs is determined in shiny, may be set or calculated
+      startPoint<-which(abs(upAbs-pcChange)==min(abs(upAbs-pcChange)))[1]
+      
+      #StartAbs is fitted if abs > threshold, otherwise is closest point
+      #This prevents crashing if there are blank wells
+      ifelse((max(u)-min(u)<thresh | min(upAbs)>=pcChange),
+             startAbs<-upAbs[startPoint],
+             #startAbs <- NA,
+             startAbs<-round(approx(upTime, upAbs, xout = pcChange, ties = mean)$x,3)
+      )
+      
+      #StartTime is fitted if abs > threshold, otherwise is closest point
+      #This prevents crashing if there are blank wells
+      ifelse((max(u)-min(u)<thresh | min(upAbs)>=pcChange),
+             startTime<-upTime[startPoint],
+             #startTime <- NA,
+             startTime<-round(approx(upAbs, upTime, xout = startAbs, ties = mean)$y,3)
+      )
+      
+      
+      ifelse(is.na(startTime), startPoint <- 1, startPoint <- startPoint)
+      
+      upcurve<-c(minAbs, startTime,startAbs, maxAbs, startPoint, pointmax)
+      
+    } 
+    
+    #and here we analyse the downside of the curve
+    downy <- function(d, aplate, ini, thresh) {
+      Time <- aplate[[1]]
+      
+      minAbs <- switch(input$abini,
+                       "global zero"=input$back,
+                       "nth absorbance"=d[input$arow],
+                       "min+offset"=min(d, na.rm=TRUE)+input$off
+                       
+      )
+      
+      #Need to define how to get the max abs
       maxAbs <- max(d, na.rm = TRUE)
-
-      # Calculations for the 50% lysis time and abs and 100% lysis time
+      
       pointmax <- which.max(d)
       pcChange <- ini * (maxAbs - minAbs) + minAbs
-      # ifelse statements are used to differentiate between clotting or clotlysis curves
-      ifelse(d[length(d)] >= pcChange, downTime <- Time, downTime <- Time[-c(1:pointmax)])
-      ifelse(d[length(d)] >= pcChange, downAbs <- d, downAbs <- d[-c(1:pointmax)])
-      # decaypoint is where set% lysis occurs
-      if_else(d[length(d)] >= pcChange, decayPoint <- length(d), decayPoint <- which(abs(downAbs - pcChange) == min(abs(downAbs - pcChange)))[1])
-      # end point is where 100% lysis occurs
-      if_else(d[length(d)] >= pcChange, endPoint <- length(d), endPoint <- which(downAbs <= minAbs)[1])
-
-      if_else(d[length(d)] >= pcChange, endTime <- Time[length(d)], endTime <- downTime[endPoint])
-
-      if_else(d[length(d)] >= pcChange, lastPoint <- endPoint, lastPoint <- endPoint + pointmax)
-      # will crash if lastPoint is NA
-      ifelse(is.na(lastPoint), lastPoint <- length(d), lastPoint <- endPoint + pointmax)
-
-      # will this avoid crashes due to endtime = NA
-      ifelse(is.na(endTime), endTime <- Time[length(d)], endTime <- endTime)
-
-      # In the simple clotlysis app don't use AUC it can be crashy
-      # AUC<-sum(diff(Time[1:lastPoint])*(head(d[1:lastPoint],-1)+tail(d[1:lastPoint],-1)))/2
-
-      if_else(max(d) - min(d) < thresh,
-        decayAbs <- downAbs[decayPoint],
-        decayAbs <- round(approx(downTime, downAbs, xout = pcChange, ties = mean)$x, 4)
+      downTime <- Time[-c(1:pointmax)]
+      downAbs <- d[-c(1:pointmax)]
+      #This deals with wiggly late points
+      TC <- which.min(downAbs)
+      #downTime <- downTime[1:TC]
+      #downAbs <- downAbs[1:TC]
+      ifelse(TC<=1, downTime <- downTime, downTime <- downTime[1:TC])
+      ifelse(TC<=1, downAbs <- downAbs, downAbs <- downAbs[1:TC])
+      
+      #This allows for late blips followed by flat response
+      maxChange <- max(downAbs, na.rm = TRUE)-min(downAbs, na.rm = TRUE)
+      
+      #For complete lysis
+      ifelse(d[length(d)]>=pcChange, endPoint <- length(d),endPoint <- which(downAbs<=minAbs)[1] )
+      ifelse(d[length(d)]>=pcChange, endTime <- Time[length(d)], endTime <- downTime[endPoint])
+      ifelse(d[length(d)]>=pcChange, lastPoint <- endPoint,lastPoint <- endPoint+pointmax )
+      #will crash if lastPoint is NA
+      ifelse(is.na(lastPoint), lastPoint <- length(d), lastPoint <- endPoint+pointmax)
+      
+      #The point where %lysis occurs
+      decayPoint<-which(abs(downAbs-pcChange)==min(abs(downAbs-pcChange)))[1] 
+      
+      AUC<-sum(diff(Time[1:lastPoint])*(head(d[1:lastPoint],-1)+tail(d[1:lastPoint],-1)))/2
+      
+      #Allows for a flat response or a late flat response
+      ifelse((maxAbs<thresh | maxChange<thresh), decayAbs <- downAbs[decayPoint], 
+             decayAbs <- round(approx(downTime, downAbs, xout = pcChange, ties = mean)$x, 3)
       )
-
-      # StartTime is fitted if abs > threshold, otherwise is closest point
-      # This prevents crashing if there are blank wells
-      ifelse(max(d) - min(d) < thresh,
-        decayTime <- downTime[decayPoint],
-        decayTime <- round(approx(downAbs, downTime, xout = decayAbs, ties = mean)$y, 4)
+      #Allows for a flat response or a late flat response
+      ifelse((maxAbs<thresh | maxChange<thresh), decayTime <- downTime[decayPoint], 
+             decayTime <- round(approx(downAbs, downTime, xout = decayAbs, ties = mean)$y, 3)
       )
-      # Collect the down curve variables
-      downcurve <- c(decayAbs, decayTime, decayPoint + pointmax, lastPoint, endTime)
+      #some safety net for insufficient lysis
+      ifelse(downAbs[length(downAbs)] >=pcChange, lysPoint <- lastPoint, lysPoint <- decayPoint+pointmax)
+      ifelse(downAbs[length(downAbs)] >=pcChange, decayTime <- NA, decayTime <- decayTime)
+      
+      downcurve <- c(decayAbs, decayTime, lysPoint, decayPoint, pointmax, lastPoint, endTime, AUC)
+      
     }
 
     # Generate the table of results
-    tabres <- reactive({
-      thePlate <- procfile() # use processed data
-      Time <- thePlate[[1]] # Time is the first column of the datafile
-      ini <- input$ini * .01 # ini is for %lysis
-      thresh <- input$thresh # thresh sets delta abs for interpolation to avoid crashes in noisy or empty wells
-
-      # map-df from the Purrr package is used in conjunction with the functions above
-      # mapDatDF is a larger results table that is trimmed to make TabRes below
-      mapDatDF <- thePlate[-1] %>% # take away the time column
-        map_df(~ data.frame(
-          firstAbs = MaxandMin(.x, Time, thresh)[1], min.abs = MaxandMin(.x, Time, thresh)[2],
-          max.abs = MaxandMin(.x, Time, thresh)[3],
-          delta.abs = MaxandMin(.x, Time, thresh)[4],
-          max.time = MaxandMin(.x, Time, thresh)[5], pointmax = MaxandMin(.x, Time, thresh)[6],
-          clot.time = uppity(.x, Time, ini, thresh)[2], clot.abs = uppity(.x, Time, ini, thresh)[4], startPoint = uppity(.x, Time, ini, thresh)[5],
-          lys.abs = downy(.x, Time, ini, thresh)[1],
-          lys.time = downy(.x, Time, ini, thresh)[2],
-          decayPoint = downy(.x, Time, ini, thresh)[3],
-          endPoint = downy(.x, Time, ini, thresh)[4],
-          end.time = downy(.x, Time, ini, thresh)[5]
-        )) %>%
-        mutate(clotTolys.time = lys.time - clot.time) %>%
-        add_column(Wells = colnames(thePlate[-1]), .before = TRUE)
-
-      TabRes <- mapDatDF %>% # choose which results you need and in the right order
-        # select(Wells, min.abs, clot.time, clot.abs, max.abs, delta.abs, max.time, lys.time, lys.abs, clotTolys.time, startPoint, pointmax, decayPoint, endPoint, end.time) %>%
-        select(Wells, min.abs, clot.time, clot.abs, max.abs, delta.abs, max.time, lys.time, lys.abs, clotTolys.time, end.time, startPoint, pointmax, decayPoint, endPoint) %>%
-        mutate(across(where(is.numeric), \(x) round(x, digits = 4))) # use newer method for across
-      # No clipboard for online app
+    TabRes<- reactive ({
+      #for reference
+      #minmax<-c(firstA, minAbs, maxA, changeA, maxT, pointmax)
+      #upcurve<-c(minAbs, startTime,startAbs, maxAbs, startPoint, pointmax)
+      #downcurve <- c(decayAbs, decayTime, lysPoint, decayPoint, pointmax, lastPoint, endTime, AUC)
+      
+      whichPlate <- procfile()
+      args_list <- list(whichPlate, ini = input$ini*.01, thresh = input$thresh)
+      #ini <- input$ini*.01
+      #thresh <- input$thresh
+      
+      Time <- whichPlate[[1]]
+      #Time <- readData()[[1]]
+      TabRes <- whichPlate[ -1] |>
+        imap(~ {
+          resultsu <- do.call(uppity, c(list(.x), args_list))
+          resultsd <- do.call(downy, c(list(.x), args_list))
+          resultsm <- do.call(minandmax, c(list(.x), args_list))
+          data.frame(
+            Wells = .y,
+            minAbs         = resultsm[2],
+            clotTime       = resultsu[2],
+            clotAbs        = resultsu[3],
+            maxAbs         = resultsu[4],
+            deltaAbs       = resultsm[4],
+            maxTime        = resultsm[5],
+            lysAbs         = resultsd[1],
+            lysTime        = resultsd[2],
+            clotTolysTime  = resultsd[2]-resultsu[2],
+            endTime        = resultsd[7],
+            AUC            = resultsd[8],
+            startPoint     = resultsu[5],
+            maxPoint       = resultsm[6],
+            lysPoint       = resultsd[3],
+            lastPoint      = resultsd[6], 
+            decayPoint     = resultsd[4]
+            
+            
+          )
+        }) |>
+        list_rbind() |> 
+        mutate(across(where(is.numeric), \(x) round(x, digits=4))) 
+      #No clipboard for online app
       #clipr::write_clip(TabRes)
+      TabRes
     })
   })
 }
