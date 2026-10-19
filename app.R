@@ -19,6 +19,7 @@ ThisApp <- "Simple clotlysis app"
 ui <- fluidPage(
   includeCSS("./www/styles3.css"), # make a few changes to the colours and fonts
   titlePanel(tags$h2(ThisApp)), # align = "center")),
+  title = ThisApp,
   #navbarPage(title = ThisApp),
   helpText(h3("App URL's are changing. Find the latest versions at the ", 
               tags$a(href = "https://drclongstaff.github.io/shiny-clots/ ", "shiny-clots web page", target="_blank", rel="noopener noreferrer"),  align="center")),
